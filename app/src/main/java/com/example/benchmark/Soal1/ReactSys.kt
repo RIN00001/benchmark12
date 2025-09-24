@@ -54,7 +54,6 @@ val green: String = "#00FF00"
 
     fun failTrial() {
         if (gameState == GameState.WAITING) {
-            // Do NOT increment trial, retry same one
             gameState = GameState.IDLE
         }
     }
