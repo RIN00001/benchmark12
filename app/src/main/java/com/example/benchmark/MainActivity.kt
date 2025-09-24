@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.benchmark.Soal1.Soal1View
 import com.example.benchmark.ui.theme.BenchmarkTheme
 
 class MainActivity : ComponentActivity() {
@@ -19,7 +20,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             BenchmarkTheme {
+                Soal1View()
+            }
             }
         }
     }
-}
+
