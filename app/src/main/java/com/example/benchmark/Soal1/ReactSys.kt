@@ -1,38 +1,38 @@
 package com.example.soal1
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import com.example.benchmark.R
 import kotlinx.coroutines.delay
 import kotlin.random.Random
 
-data class Evaluation(
+data class CardRes(
     val message: String,
-    val colorHex: String,
+    val color: Color,
     val imageRes: Int
 )
 
 
 class ReactSys(private val trialCount: Int = 3) {
-val red: String = "#FF0000"
-val orange: String = "#FFA500"
-val blue: String = "#0000FF"
-val green: String = "#00FF00"
 
-    enum class GameState { IDLE, WAITING, GO, RESULT, FINISHED }
 
-    var gameState: GameState = GameState.IDLE
+    enum class GameState { IDLE, WAITING, GO, RESULT, FINISHED ,FAIL}
+
+
+    var gameState by mutableStateOf(GameState.IDLE)
         private set
-
     private var startTime: Long = 0
     private var currentTrial = 0
     private val trialResults = LongArray(trialCount) { -1 }
 
-    suspend fun startTrial(): Long {
+    suspend fun startTrial() {
         gameState = GameState.WAITING
-        val delayTime = Random.nextLong(2000, 5000) // 2–5 seconds
+        val delayTime = Random.nextLong(2000, 5000)
         delay(delayTime)
         startTime = System.currentTimeMillis()
         gameState = GameState.GO
-        return startTime
     }
 
     fun recordReaction(): Long {
@@ -41,21 +41,19 @@ val green: String = "#00FF00"
         val reaction = tapTime - startTime
         trialResults[currentTrial] = reaction
         gameState = GameState.RESULT
-
-        currentTrial++
-        if (currentTrial >= trialCount) {
-            gameState = GameState.FINISHED
-        } else {
-            gameState = GameState.IDLE
-        }
         return reaction
     }
 
 
     fun failTrial() {
         if (gameState == GameState.WAITING) {
-            gameState = GameState.IDLE
+            gameState = GameState.FAIL
         }
+    }
+    fun prepFromResult(){
+        if (gameState != GameState.RESULT) return
+        currentTrial++
+        gameState = if (currentTrial >= trialCount) GameState.FINISHED else GameState.IDLE
     }
 
     fun getResults(): List<Long> = trialResults.toList()
@@ -68,27 +66,27 @@ val green: String = "#00FF00"
     }
 
 
-    fun getEvaluation(): Evaluation {
+    fun getEvaluation(): CardRes {
         val avg = getAverage()
         return when {
-            avg > 600 -> Evaluation(
+            avg > 600 -> CardRes(
                 "YOU LIKE A SNAIL BRO",
-                red,
+                Color.Red,
                 R.drawable.norispek
             )
-            avg > 400 -> Evaluation(
+            avg > 400 -> CardRes(
                 "MEH LIKE OTHER PERSON",
-                orange,
+                Color.Yellow,
                 R.drawable.mid
             )
-            avg > 200 -> Evaluation(
+            avg > 200 -> CardRes(
                 "YOUR REFLEX IS GOOD",
-                blue,
+                Color.Blue,
                 R.drawable.good
             )
-            else -> Evaluation(
+            else -> CardRes(
                 "DANG YOU ARE SO FAST BRO!",
-                green,
+                Color.Green,
                 R.drawable.sweat
             )
         }

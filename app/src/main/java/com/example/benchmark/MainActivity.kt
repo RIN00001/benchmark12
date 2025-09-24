@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.example.benchmark.Soal1.ReactionGameUI
+import com.example.benchmark.Soal1.Soal1Preview
 import com.example.benchmark.ui.theme.BenchmarkTheme
 
 class MainActivity : ComponentActivity() {
@@ -13,7 +14,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             BenchmarkTheme {
-                ReactionGameUI()
+                Soal1Preview()
             }
             }
         }

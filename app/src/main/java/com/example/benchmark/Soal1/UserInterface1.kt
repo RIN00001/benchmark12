@@ -19,7 +19,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.soal1.Evaluation
+import com.example.soal1.CardRes
+import com.example.soal1.ReactSys
 import kotlinx.coroutines.launch
 
 enum class AppScreen { START_MENU, REACTION_GAME }
@@ -107,18 +108,22 @@ fun ReactionGameUI(
             totalTrials = 3,
             reactionTime = lastReaction,
             trialResults = game.getResults(),
-            onContinue = { /* just let system handle */ }
+            onContinue = { game.prepFromResult() }
         )
 
         ReactSys.GameState.FINISHED -> {
             val eval = game.getEvaluation()
             FinalScreen(
                 average = game.getAverage(),
-                evaluation = eval,
+                cardRes = eval,
                 trialResults = game.getResults(),
-                onRestart = { onExit() } // instead of reset, exit to StartMenu
+                onRestart = { onExit() }
             )
         }
+        ReactSys.GameState.FAIL -> FailScreen(
+            trialResults = game.getResults(),
+            onRetry = { scope.launch { game.startTrial() } }
+        )
     }
 }
 
@@ -154,14 +159,14 @@ fun GamePlayScreen(
 
 @Composable
 fun IdleScreen(
-    trialResults: List<Long>,      // show progress so far
-    onStart: () -> Unit            // called when user taps to start
+    trialResults: List<Long>,
+    onStart: () -> Unit
 ) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Gray)
-            .clickable { onStart() }  // Tap anywhere to start
+            .clickable { onStart() }
             .padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -171,35 +176,6 @@ fun IdleScreen(
         ) {
             Text("Tap to Start", color = Color.White, fontSize = 28.sp)
 
-            Spacer(Modifier.height(40.dp))
-
-            // Trial Results box
-            Card(
-                shape = RoundedCornerShape(12.dp),
-                elevation = CardDefaults.cardElevation(8.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text("Trial Results", fontSize = 18.sp)
-                    Spacer(Modifier.height(8.dp))
-                    Row {
-                        trialResults.forEachIndexed { index, score ->
-                            val text = if (score >= 0) "${score}ms" else "-"
-                            Column(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(4.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Text("${index + 1}")
-                                Text(text)
-                            }
-                        }
-                    }
-                }
-            }
         }
     }
 }
@@ -248,7 +224,6 @@ fun ResultScreen(
 
             Spacer(Modifier.height(40.dp))
 
-            // Trial Results box
             Card (
                 shape = RoundedCornerShape(12.dp),
                 elevation = CardDefaults.cardElevation(8.dp)
@@ -282,14 +257,14 @@ fun ResultScreen(
 
 @Composable
 fun FailScreen(
-    trialResults: List<Long>,       // results so far
-    onRetry: () -> Unit             // called when user taps anywhere
+    trialResults: List<Long>,
+    onRetry: () -> Unit
 ) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Red)
-            .clickable { onRetry() } // Tap anywhere to retry
+            .clickable { onRetry() }
             .padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -318,33 +293,6 @@ fun FailScreen(
 
             Spacer(Modifier.height(40.dp))
 
-            // Trial Results box
-            Card(
-                shape = RoundedCornerShape(12.dp),
-                elevation = CardDefaults.cardElevation(8.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text("Trial Results", fontSize = 18.sp)
-                    Spacer(Modifier.height(8.dp))
-                    Row {
-                        trialResults.forEachIndexed { index, score ->
-                            val text = if (score >= 0) "${score}ms" else "-"
-                            Column(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(4.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Text("${index + 1}")
-                                Text(text)
-                            }
-                        }
-                    }
-                }
-            }
         }
     }
 }
@@ -352,11 +300,11 @@ fun FailScreen(
 @Composable
 fun FinalScreen(
     average: Long,
-    evaluation: Evaluation,
+    cardRes: CardRes,
     trialResults: List<Long>,
     onRestart: () -> Unit
 ) {
-    val bgColor = Color(android.graphics.Color.parseColor(evaluation.colorHex))
+    val bgColor = cardRes.color
 
     Box(
         modifier = Modifier
@@ -378,9 +326,8 @@ fun FinalScreen(
 
             Spacer(Modifier.height(20.dp))
 
-            // New: show evaluation image
             Image(
-                painter = painterResource(id = evaluation.imageRes),
+                painter = painterResource(id = cardRes.imageRes),
                 contentDescription = "evaluation image",
                 modifier = Modifier.size(120.dp)
             )
@@ -388,7 +335,7 @@ fun FinalScreen(
             Spacer(Modifier.height(16.dp))
 
             Text(
-                evaluation.message,
+                cardRes.message,
                 color = Color.White,
                 fontSize = 20.sp,
                 textAlign = TextAlign.Center
@@ -400,7 +347,6 @@ fun FinalScreen(
 
             Spacer(Modifier.height(40.dp))
 
-            // Show all trial results
             Card(
                 shape = RoundedCornerShape(12.dp),
                 elevation = CardDefaults.cardElevation(8.dp)
@@ -437,4 +383,5 @@ fun FinalScreen(
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
 fun Soal1Preview() {
+    MainAppUI()
 }
