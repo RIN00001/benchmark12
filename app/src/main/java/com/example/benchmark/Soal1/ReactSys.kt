@@ -74,22 +74,22 @@ val green: String = "#00FF00"
         return when {
             avg > 600 -> Evaluation(
                 "YOU LIKE A SNAIL BRO",
-                "#FF0000",
+                red,
                 R.drawable.norispek
             )
             avg > 400 -> Evaluation(
                 "MEH LIKE OTHER PERSON",
-                "#FFA500",
+                orange,
                 R.drawable.mid
             )
             avg > 200 -> Evaluation(
                 "YOUR REFLEX IS GOOD",
-                "#0000FF",
+                blue,
                 R.drawable.good
             )
             else -> Evaluation(
                 "DANG YOU ARE SO FAST BRO!",
-                "#00FF00",
+                green,
                 R.drawable.sweat
             )
         }
