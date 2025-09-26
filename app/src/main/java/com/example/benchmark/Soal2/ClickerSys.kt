@@ -15,7 +15,7 @@ class ClickerSys(){
     fun upgradeClicker(){
         if(click >= upgradeCost){
             click -= upgradeCost
-            clickPower * 1.5.roundToInt()
+            clickPower= (clickPower * 1.5).roundToInt()
             upgradeCost *= 2
         }
     }
