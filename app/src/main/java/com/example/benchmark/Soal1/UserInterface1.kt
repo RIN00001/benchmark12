@@ -33,10 +33,7 @@ import kotlinx.coroutines.launch
 
 enum class AppScreen { START_MENU, REACTION_GAME }
 
-@Composable
-fun ReactionApp(){
-    ReactionGameUI()
-}
+
 @Composable
 fun ReactionGameUI() {
     val game = remember { ReactSys() }
@@ -375,5 +372,5 @@ fun TrialResultsCard(trialResults: List<Long>) {
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
 fun Soal1Preview() {
-ReactionApp()
+ReactionGameUI()
 }
