@@ -8,7 +8,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.DirectionsRun
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.DirectionsRun
 import androidx.compose.material.icons.filled.FlashOn
+import androidx.compose.material.icons.filled.ThumbDown
+import androidx.compose.material.icons.filled.ThumbUp
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -30,61 +36,11 @@ import kotlinx.coroutines.launch
 enum class AppScreen { START_MENU, REACTION_GAME }
 
 @Composable
-fun MainAppUI() {
-    var currentScreen by remember { mutableStateOf(AppScreen.START_MENU) }
-
-    when (currentScreen) {
-        AppScreen.START_MENU -> {
-            StartMenuScreen(
-                onPlay = { currentScreen = AppScreen.REACTION_GAME },
-                onPreviousResult = { /* TODO nanti */ },
-                onBackToMenu = { /* TODO nanti */ }
-            )
-        }
-
-        AppScreen.REACTION_GAME -> {
-            ReactionGameUI(
-                onExit = { currentScreen = AppScreen.START_MENU }
-            )
-        }
-    }
+fun ReactionApp(){
+    ReactionGameUI()
 }
-
-
-
 @Composable
-fun StartMenuScreen(
-    onPlay: () -> Unit,
-    onPreviousResult: () -> Unit,
-    onBackToMenu: () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.DarkGray)
-            .padding(16.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Button(onClick = onPlay, modifier = Modifier.fillMaxWidth()) {
-                Text("Play Game")
-            }
-            Spacer(Modifier.height(16.dp))
-            Button(onClick = onPreviousResult, modifier = Modifier.fillMaxWidth()) {
-                Text("Previous Result")
-            }
-            Spacer(Modifier.height(16.dp))
-            Button(onClick = onBackToMenu, modifier = Modifier.fillMaxWidth()) {
-                Text("Back to Menu")
-            }
-        }
-    }
-}
-
-@Composable
-fun ReactionGameUI(
-    onExit: () -> Unit
-) {
+fun ReactionGameUI() {
     val game = remember { ReactSys() }
     var lastReaction by remember { mutableStateOf(0L) }
     val scope = rememberCoroutineScope()
@@ -100,13 +56,11 @@ fun ReactionGameUI(
             onFail = { game.failTrial() },
             onSuccess = {}
         )
-
         ReactSys.GameState.GO -> GamePlayScreen(
             isGo = true,
             onFail = {},
             onSuccess = { lastReaction = game.recordReaction() }
         )
-
         ReactSys.GameState.RESULT -> ResultScreen(
             trialNumber = game.getResults().indexOfLast { it >= 0 } + 1,
             totalTrials = 3,
@@ -114,22 +68,23 @@ fun ReactionGameUI(
             trialResults = game.getResults(),
             onContinue = { game.prepFromResult() }
         )
-
         ReactSys.GameState.FINISHED -> {
             val eval = game.getEvaluation()
             FinalScreen(
                 average = game.getAverage(),
                 cardRes = eval,
                 trialResults = game.getResults(),
-                onRestart = { onExit() }
+                onRestart = { game.resetAll() }
             )
         }
         ReactSys.GameState.FAIL -> FailScreen(
             trialResults = game.getResults(),
-            onRetry = { scope.launch { game.startTrial() } }
+            onRetry = { game.resetAfterFail() }
         )
     }
 }
+
+
 
 @Composable
 fun GamePlayScreen(
@@ -137,40 +92,61 @@ fun GamePlayScreen(
     onFail: () -> Unit,
     onSuccess: () -> Unit
 ) {
-    val bgColor = if (isGo) Color(0xFF199119) else Color.LightGray
-    val message = if (isGo) "TAP NOW!" else "Wait for Green..."
-
+    val bgColor = if (isGo) Color(0xFF4CAF50) else Color(0xFFE0E0E0)
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(bgColor)
-            .clickable {
-                if (isGo) {
-                    onSuccess()
-                } else {
-                    onFail()
-                }
-
-            },
+            .clickable { if (isGo) onSuccess() else onFail() }
+            .padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
-        Text(
-            message,
-            color = Color.White,
-            fontSize = 28.sp
-        )
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            if (isGo) {
+                Text("GO!", color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.height(16.dp))
+                Icon(
+                    imageVector = Icons.Default.DirectionsRun,
+                    contentDescription = "Run",
+                    tint = Color.White,
+                    modifier = Modifier.size(96.dp)
+                )
+                Spacer(Modifier.height(24.dp))
+                Text("CLICK NOW!", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.height(8.dp))
+                Text("TAP AS FAST AS YOU CAN!", color = Color.White.copy(alpha = 0.9f), fontSize = 14.sp)
+            } else {
+                Text("Get Ready", color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.height(16.dp))
+                Icon(
+                    imageVector = Icons.Default.Warning,
+                    contentDescription = "Warning",
+                    tint = Color.White,
+                    modifier = Modifier.size(96.dp)
+                )
+                Spacer(Modifier.height(24.dp))
+                Text("Wait for green light...", color = Color.White, fontSize = 18.sp)
+                Spacer(Modifier.height(8.dp))
+                Text("DON'T CLICK YET!", color = Color.White.copy(alpha = 0.9f), fontSize = 14.sp)
+            }
+        }
     }
 }
+
 
 @Composable
 fun IdleScreen(
     trialResults: List<Long>,
     onStart: () -> Unit
 ) {
+    val bg = Color(0xFF7CC9D0)
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Cyan)
+            .background(bg)
             .clickable { onStart() }
             .padding(16.dp),
         contentAlignment = Alignment.Center
@@ -179,21 +155,24 @@ fun IdleScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text("Reaction", color = Color.White, fontSize = 48.sp, fontWeight = FontWeight.Bold)
-            Spacer(Modifier.height(20.dp))
+            Text("Reaction", color = Color.White, fontSize = 32.sp, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(16.dp))
             Icon(
                 imageVector = Icons.Default.FlashOn,
-                contentDescription = "play icon",
+                contentDescription = "Flash",
                 tint = Color.White,
-                modifier = Modifier.size(150.dp)
+                modifier = Modifier.size(96.dp)
             )
-            Spacer(Modifier.height(20.dp))
-            Text("Tap to start", color = Color.White, fontSize = 48.sp, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(16.dp))
+            Text("Test", color = Color.White.copy(alpha = 0.9f), fontSize = 18.sp)
+            Spacer(Modifier.height(8.dp))
+            Text("Click to Start", color = Color.White.copy(alpha = 0.8f), fontSize = 16.sp)
 
-
+            Spacer(Modifier.height(40.dp))
         }
     }
 }
+
 
 @Composable
 fun ResultScreen(
@@ -203,10 +182,11 @@ fun ResultScreen(
     trialResults: List<Long>,
     onContinue: () -> Unit
 ) {
+    val bg = Color(0xFF4CAF50)
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF199119))
+            .background(bg)
             .clickable { onContinue() }
             .padding(16.dp),
         contentAlignment = Alignment.Center
@@ -215,59 +195,29 @@ fun ResultScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text(
-                "Trial $trialNumber of $totalTrials",
-                color = Color.White,
-                fontSize = 22.sp
+            Text("Trial $trialNumber Complete!", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(16.dp))
+            Icon(
+                imageVector = Icons.Filled.CheckCircle,
+                contentDescription = "Success",
+                tint = Color.White,
+                modifier = Modifier.size(96.dp)
             )
-
-            Spacer(Modifier.height(20.dp))
-
-            Text(
-                "Your Reaction: ${reactionTime} ms",
-                color = Color.Yellow,
-                fontSize = 28.sp
-            )
-
-            Spacer(Modifier.height(20.dp))
-
-            Text(
-                "Tap to continue",
-                color = Color.White,
-                fontSize = 18.sp
-            )
-
-            Spacer(Modifier.height(40.dp))
-
-            Card (
-                shape = RoundedCornerShape(12.dp),
-                elevation = CardDefaults.cardElevation(8.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text("Trial Results", fontSize = 18.sp)
-                    Spacer(Modifier.height(8.dp))
-                    Row {
-                        trialResults.forEachIndexed { index, score ->
-                            val text = if (score >= 0) "${score}ms" else "-"
-                            Column(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(4.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Text("${index + 1}")
-                                Text(text)
-                            }
-                        }
-                    }
-                }
+            Spacer(Modifier.height(16.dp))
+            Text("Time: ${reactionTime}ms", color = Color.White, fontSize = 18.sp)
+            Spacer(Modifier.height(8.dp))
+            val next = (trialNumber + 1).coerceAtMost(totalTrials)
+            if (trialNumber < totalTrials) {
+                Text("Continue to Trial $next", color = Color.White.copy(alpha = 0.95f), fontSize = 16.sp)
+            } else {
+                Text("Tap to finish", color = Color.White.copy(alpha = 0.95f), fontSize = 16.sp)
             }
+            Spacer(Modifier.height(24.dp))
+            TrialResultsCard(trialResults)
         }
     }
 }
+
 
 
 @Composable
@@ -275,10 +225,11 @@ fun FailScreen(
     trialResults: List<Long>,
     onRetry: () -> Unit
 ) {
+    val bg = Color(0xFFF44336)
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Red)
+            .background(bg)
             .clickable { onRetry() }
             .padding(16.dp),
         contentAlignment = Alignment.Center
@@ -287,30 +238,29 @@ fun FailScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text("FAIL!", color = Color.White, fontSize = 32.sp)
-
+            Text("FAIL!", color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(16.dp))
-
+            Icon(
+                imageVector = Icons.Default.ThumbDown,
+                contentDescription = "Dislike",
+                tint = Color.White,
+                modifier = Modifier.size(96.dp)
+            )
+            Spacer(Modifier.height(16.dp))
             Text(
-                "You clicked too early,\nTRY TO READ THE RULE BRO",
+                "You clicked too early, TRY TO\nREAD THE RULE BRO",
                 color = Color.White,
-                fontSize = 18.sp,
+                fontSize = 16.sp,
                 textAlign = TextAlign.Center
             )
-
+            Spacer(Modifier.height(16.dp))
+            Text("TRY AGAIN", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Medium)
             Spacer(Modifier.height(24.dp))
-
-            Text(
-                "Tap to try again",
-                color = Color.White,
-                fontSize = 20.sp
-            )
-
-            Spacer(Modifier.height(40.dp))
-
+            TrialResultsCard(trialResults)
         }
     }
 }
+
 
 @Composable
 fun FinalScreen(
@@ -382,15 +332,12 @@ fun FinalScreen(
                                     .padding(4.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Text("${index + 1}", fontWeight = FontWeight.Bold, color = Color(
-                                    0xFF4CAF50
-                                )
-                                )
+                                Text("${index + 1}", fontWeight = FontWeight.Bold, color = Color(0xFF4CAF50))
                                 Text(text, fontWeight = FontWeight.Bold )
                             }
                         }
                     }
-                    Text("Average Score", color = Color(0xFF03A9F4), fontSize = 20.sp)
+                    Text("Average Score", color = Color(0xFF03A9F4), fontSize = 20.sp, fontWeight = FontWeight.Bold)
                     Text("${average} ms", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color(0xFFFFA500))
 
                 }
@@ -399,11 +346,36 @@ fun FinalScreen(
     }
 }
 
+@Composable
+fun TrialResultsCard(trialResults: List<Long>) {
+    Card(
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text("Trial Results", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF2196F3))
+            Spacer(Modifier.height(8.dp))
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                trialResults.forEachIndexed { index, score ->
+                    val text = if (score >= 0) "${score}ms" else "-"
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("${index + 1}", fontWeight = FontWeight.Medium, color = Color(0xFF4CAF50))
+                        Text(text)
+                    }
+                }
+            }
+        }
+    }
+}
 
 
 
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
 fun Soal1Preview() {
-    MainAppUI()
+ReactionApp()
 }

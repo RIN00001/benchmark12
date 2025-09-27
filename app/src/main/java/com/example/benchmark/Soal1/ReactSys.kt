@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import com.example.benchmark.R
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -30,13 +31,19 @@ class ReactSys(private val trialCount: Int = 3) {
     private val trialResults = LongArray(trialCount) { -1 }
     private var trialJob: Job? = null
     suspend fun startTrial() {
+        trialJob?.cancel()
+        trialJob = null
+
         gameState = GameState.WAITING
         val delayTime = Random.nextLong(2000, 5000)
 
-        trialJob = kotlinx.coroutines.GlobalScope.launch {
+        trialJob = GlobalScope.launch {
             delay(delayTime)
-            startTime = System.currentTimeMillis()
-            gameState = GameState.GO
+
+            if (gameState == GameState.WAITING) {
+                startTime = System.currentTimeMillis()
+                gameState = GameState.GO
+            }
         }
     }
 
@@ -98,4 +105,20 @@ class ReactSys(private val trialCount: Int = 3) {
         }
     }
 
+    fun resetAfterFail() {
+        // make sure no stale job runs
+        trialJob?.cancel()
+        trialJob = null
+        if (gameState == GameState.FAIL) gameState = GameState.IDLE
+    }
+
+
+    fun resetAll() {
+        trialJob?.cancel()
+        trialJob = null
+        startTime = 0L
+        currentTrial = 0
+        for (i in trialResults.indices) trialResults[i] = -1
+        gameState = GameState.IDLE
+    }
 }
