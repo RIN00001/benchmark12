@@ -30,7 +30,7 @@ import kotlinx.coroutines.delay
 
 
 @Composable
-@Preview
+@Preview(showBackground = true, showSystemUi = true)
 fun Soal3Preview(){
  UserIn()
 }

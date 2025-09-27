@@ -52,15 +52,16 @@ class ColorGuessSys() {
         val (wordText, _) = colors.random(random)
         val (inkColorName, inkColor) = colors.random(random)
 
-        val correctAnswer = when (mode){
-            GameMode.TEXT -> wordText
-            GameMode.COLOR -> inkColorName
-        }
+        val correctAnswer: String
+        val wrongAnswer: String
 
-        var wrongAnswer: String
-        do {
-            wrongAnswer = colors.random(random).first
-        } while (wrongAnswer == correctAnswer)
+        if (mode == GameMode.TEXT) {
+            correctAnswer = wordText
+            wrongAnswer = inkColorName
+        } else {
+            correctAnswer = inkColorName
+            wrongAnswer = wordText
+        }
 
         val options = listOf(correctAnswer, wrongAnswer).shuffled(random)
 
