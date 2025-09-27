@@ -53,7 +53,7 @@ class ReactSys(private val trialCount: Int = 3) {
 
     fun failTrial() {
         if (gameState == GameState.WAITING) {
-            trialJob?.cancel()   // 👈 cancel the delay coroutine
+            trialJob?.cancel()
             trialJob = null
             gameState = GameState.FAIL
         }
@@ -77,7 +77,7 @@ class ReactSys(private val trialCount: Int = 3) {
         return when {
             avg > 600 -> CardRes(
                 "YOU LIKE A SNAIL BRO",
-                Color.Red,
+                Color(0xFF961C14),
                 R.drawable.norispek
             )
             avg > 400 -> CardRes(
@@ -87,7 +87,7 @@ class ReactSys(private val trialCount: Int = 3) {
             )
             avg > 200 -> CardRes(
                 "YOUR REFLEX IS GOOD",
-                Color.Blue,
+                Color(0xFF182C9D),
                 R.drawable.good
             )
             else -> CardRes(
