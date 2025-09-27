@@ -228,7 +228,7 @@ fun RevealScreen(
         ) {
             Text(
                 "${emojiFor(result.playerMove)}  VS  ${emojiFor(result.aiMove)}",
-                fontSize = 26.sp
+                fontSize = 36.sp
             )
             Spacer(Modifier.height(16.dp))
             Text(
@@ -321,9 +321,9 @@ fun GameOverScreen(
 
 private fun emojiFor(move: Move): String {
     return when (move) {
-        Move.ROCK -> "✊ Rock"
-        Move.PAPER -> "✋ Paper"
-        Move.SCISSORS -> "✌ Scissors"
+        Move.ROCK -> "✊ "
+        Move.PAPER -> "✋ "
+        Move.SCISSORS -> "✌ "
     }
 }
 
