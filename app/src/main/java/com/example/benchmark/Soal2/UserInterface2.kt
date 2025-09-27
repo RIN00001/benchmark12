@@ -9,11 +9,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.magnifier
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,7 +43,7 @@ fun CatClickerMenu() {
     var coins by remember { mutableStateOf(pengguna.click) }
     var power by remember { mutableStateOf(pengguna.clickPower) }
     var cost by remember { mutableStateOf(pengguna.upgradeCost) }
-    var catPressed by remember { mutableStateOf(false) } // cat state
+    var catPressed by remember { mutableStateOf(false) }
     LaunchedEffect(catPressed) {
         if (catPressed) {
             delay(150)
@@ -101,7 +99,7 @@ fun CatClickerMenu() {
                             cost = pengguna.upgradeCost
 
                             CoroutineScope(Dispatchers.Main).launch {
-                                delay(150) // 150ms
+                                delay(150)
                                 catPressed = false
                             }
                         }
@@ -140,7 +138,7 @@ fun CatClickerMenu() {
                 } else {
                     val missing = cost - coins
                     Button(
-                        onClick = { /* disabled */ },
+                        onClick = { },
                         enabled = false,
                         colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray)
                     ) {
