@@ -11,7 +11,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -21,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -97,40 +100,58 @@ fun UserIn(){
 
 @Composable
 fun WelcomeScreen(onStart: () -> Unit){
-    Box(
+    Column(
         modifier = Modifier
-            .fillMaxSize(),
-        contentAlignment = Alignment.Center
+            .fillMaxSize()
+            .padding(24.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Button(onClick = onStart) {
-            Text("Start Game")
+        Text("Welcome", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+        Spacer(Modifier.height(8.dp))
+        Text("to", fontSize = 28.sp, color = Color.Black)
+        Spacer(Modifier.height(8.dp))
+        Text("Color Word Matching", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+        Spacer(Modifier.height(32.dp))
+        Button(
+            onClick = onStart,
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Gray),
+            shape = RoundedCornerShape(12.dp),
+            modifier = Modifier.padding(8.dp)
+        ) {
+            Text("Start Game", color = Color.White, fontSize = 20.sp)
         }
     }
 }
 
 
 @Composable
-fun CountdownScreen(onFinish: () -> Unit){
-    var counter by remember { mutableStateOf(5)}
+fun CountdownScreen(onFinish: () -> Unit) {
+    var counter by remember { mutableStateOf(3) }
+    var showStart by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        while (counter > 0){
+        while (counter > 0) {
             delay(1000)
             counter--
         }
+        showStart = true
+        delay(1000)
         onFinish()
     }
+
     Box(
         Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = if (counter > 0) counter.toString() else "Start!",
-            fontSize = 40.sp,
+            text = if (!showStart) counter.toString() else "Start!",
+            fontSize = 48.sp,
             fontWeight = FontWeight.Bold
         )
     }
 }
+
 
 @Composable
 fun GameScreen(
@@ -143,12 +164,12 @@ fun GameScreen(
 ){
     LaunchedEffect(round) {
         var time = 5
-        while (time > 0){
+        while (time > 0) {
             delay(1000)
             time--
             onTick(time)
         }
-        if (time == 0){
+        if (time == 0) {
             onTimeOut()
         }
     }
@@ -156,36 +177,44 @@ fun GameScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.SpaceBetween
-        , horizontalAlignment = Alignment.CenterHorizontally
+            .padding(24.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("Mode: ${round.mode}")
-            Text("Score: ${game.score}")
-            Text("Strikes: ${game.strike}/3")
+            Text("Mode: ${round.mode}", fontSize = 18.sp)
+            Text("✔ ${game.score}", fontSize = 18.sp, color = Color.Green, fontWeight = FontWeight.Bold)
+            Text("❌ ${game.strike}/3", fontSize = 18.sp, color = Color.Red, fontWeight = FontWeight.Bold)
         }
 
-        Text("Time left: $timer", fontSize = 24.sp)
+        Spacer(Modifier.height(24.dp))
+        Text("$timer s", fontSize = 28.sp, fontWeight = FontWeight.Medium)
+        Spacer(Modifier.height(24.dp))
 
         Text(
             text = round.wordText,
             color = round.inkColor,
-            fontSize = 40.sp,
-            fontWeight = FontWeight.Bold
+            fontSize = 48.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(50.dp)
         )
+
+        Spacer(Modifier.height(100.dp))
         Row(
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             round.option.forEach { option ->
-                Button(onClick = { onAnswer(option) }) {
-                    Text(option)
+                Button(
+                    onClick = { onAnswer(option) },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Gray),
+                    modifier = Modifier.padding(20.dp)
+                ) {
+                    Text(option, fontSize = 20.sp, color = Color.White)
                 }
             }
         }
@@ -202,22 +231,35 @@ fun GameOverScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-        , verticalArrangement = Arrangement.Center,
+            .padding(24.dp),
+        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Game over", fontSize = 32.sp, fontWeight = FontWeight.Bold)
+        Text("Game Over!", fontSize = 36.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(16.dp))
-        Text("Score: $score", fontSize = 24.sp)
-        Text("Best Score: $bestScore", fontSize = 24.sp)
+        Text("Your Score", fontSize = 20.sp)
+        Text("$score", fontWeight = FontWeight.Bold, fontSize = 24.sp)
+        Spacer(Modifier.height(8.dp))
+        Text("Best Score", fontSize = 16.sp)
+        Text("$bestScore", fontWeight = FontWeight.Bold, fontSize = 18.sp)
         Spacer(Modifier.height(32.dp))
-        Row {
-            Button(onClick = onRestart, modifier = Modifier.padding(8.dp)) {
-                Text("Restart")
+            Button(
+                onClick = onRestart,
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Gray),
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier.padding(8.dp)
+            ) {
+                Text("Restart Game", color = Color.White, fontSize = 18.sp)
             }
-            Button(onClick = onExit, modifier = Modifier.padding(8.dp)) {
-                Text("Exit")
-        }
+            Button(
+                onClick = onExit,
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Gray),
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier.padding(8.dp)
+            ) {
+                Text("Exit", color = Color.White, fontSize = 18.sp)
+            }
+
     }
-}
 }
 

@@ -7,15 +7,19 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -133,7 +137,7 @@ fun GamePlayScreen(
     onFail: () -> Unit,
     onSuccess: () -> Unit
 ) {
-    val bgColor = if (isGo) Color.Green else Color.Red
+    val bgColor = if (isGo) Color(0xFF199119) else Color.LightGray
     val message = if (isGo) "TAP NOW!" else "Wait for Green..."
 
     Box(
@@ -146,6 +150,7 @@ fun GamePlayScreen(
                 } else {
                     onFail()
                 }
+
             },
         contentAlignment = Alignment.Center
     ) {
@@ -165,7 +170,7 @@ fun IdleScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Gray)
+            .background(Color.Cyan)
             .clickable { onStart() }
             .padding(16.dp),
         contentAlignment = Alignment.Center
@@ -174,7 +179,17 @@ fun IdleScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text("Tap to Start", color = Color.White, fontSize = 28.sp)
+            Text("Reaction", color = Color.White, fontSize = 48.sp, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(20.dp))
+            Icon(
+                imageVector = Icons.Default.FlashOn,
+                contentDescription = "play icon",
+                tint = Color.White,
+                modifier = Modifier.size(150.dp)
+            )
+            Spacer(Modifier.height(20.dp))
+            Text("Tap to start", color = Color.White, fontSize = 48.sp, fontWeight = FontWeight.Bold)
+
 
         }
     }
@@ -191,7 +206,7 @@ fun ResultScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.DarkGray)
+            .background(Color(0xFF199119))
             .clickable { onContinue() }
             .padding(16.dp),
         contentAlignment = Alignment.Center
@@ -337,13 +352,14 @@ fun FinalScreen(
             Text(
                 cardRes.message,
                 color = Color.White,
-                fontSize = 20.sp,
+                fontSize = 24.sp,
                 textAlign = TextAlign.Center
+                ,fontWeight = FontWeight.Bold
             )
 
             Spacer(Modifier.height(30.dp))
 
-            Text("Tap to restart", color = Color.White, fontSize = 18.sp)
+            Text("Tap to Start New Test", color = Color.White, fontSize = 18.sp)
 
             Spacer(Modifier.height(40.dp))
 
@@ -355,7 +371,7 @@ fun FinalScreen(
                     modifier = Modifier.padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Trial Results", fontSize = 18.sp)
+                    Text("Trial Results", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF03A9F4))
                     Spacer(Modifier.height(8.dp))
                     Row {
                         trialResults.forEachIndexed { index, score ->
@@ -366,11 +382,17 @@ fun FinalScreen(
                                     .padding(4.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Text("${index + 1}")
-                                Text(text)
+                                Text("${index + 1}", fontWeight = FontWeight.Bold, color = Color(
+                                    0xFF4CAF50
+                                )
+                                )
+                                Text(text, fontWeight = FontWeight.Bold )
                             }
                         }
                     }
+                    Text("Average Score", color = Color(0xFF03A9F4), fontSize = 20.sp)
+                    Text("${average} ms", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color(0xFFFFA500))
+
                 }
             }
         }

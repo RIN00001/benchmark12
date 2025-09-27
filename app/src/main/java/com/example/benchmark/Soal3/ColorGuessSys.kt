@@ -86,15 +86,19 @@ class ColorGuessSys() {
     }
 
     fun gameReset(){
-        if (score > bestScore){
-            bestScore = score
-        }
         strike = 0
         score = 0
     }
 
     fun isGameOver(): Boolean {
-        return strike >= 3
+        if (strike >= 3) {
+            if (score > bestScore) {
+                bestScore = score
+            }
+            return true
+        }
+        return false
     }
+
 
 }

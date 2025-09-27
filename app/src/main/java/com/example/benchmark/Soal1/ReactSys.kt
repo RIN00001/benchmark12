@@ -58,8 +58,6 @@ class ReactSys(private val trialCount: Int = 3) {
 
     fun getResults(): List<Long> = trialResults.toList()
 
-    fun isGameOver(): Boolean = gameState == GameState.FINISHED
-
     fun getAverage(): Long {
         val validScores = trialResults.filter { it >= 0 }
         return if (validScores.isNotEmpty()) validScores.sum() / validScores.size else 0
@@ -76,7 +74,7 @@ class ReactSys(private val trialCount: Int = 3) {
             )
             avg > 400 -> CardRes(
                 "MEH LIKE OTHER PERSON",
-                Color.Yellow,
+                Color(0xFFFF9800),
                 R.drawable.mid
             )
             avg > 200 -> CardRes(
@@ -86,7 +84,7 @@ class ReactSys(private val trialCount: Int = 3) {
             )
             else -> CardRes(
                 "DANG YOU ARE SO FAST BRO!",
-                Color.Green,
+                Color(0xFF90EE90),
                 R.drawable.sweat
             )
         }
