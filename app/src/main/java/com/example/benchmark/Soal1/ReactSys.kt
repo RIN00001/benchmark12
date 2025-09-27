@@ -5,7 +5,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import com.example.benchmark.R
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 data class CardRes(
@@ -26,14 +28,18 @@ class ReactSys(private val trialCount: Int = 3) {
     private var startTime: Long = 0
     private var currentTrial = 0
     private val trialResults = LongArray(trialCount) { -1 }
-
+    private var trialJob: Job? = null
     suspend fun startTrial() {
         gameState = GameState.WAITING
         val delayTime = Random.nextLong(2000, 5000)
-        delay(delayTime)
-        startTime = System.currentTimeMillis()
-        gameState = GameState.GO
+
+        trialJob = kotlinx.coroutines.GlobalScope.launch {
+            delay(delayTime)
+            startTime = System.currentTimeMillis()
+            gameState = GameState.GO
+        }
     }
+
 
     fun recordReaction(): Long {
         if (gameState != GameState.GO) return -1
@@ -47,6 +53,8 @@ class ReactSys(private val trialCount: Int = 3) {
 
     fun failTrial() {
         if (gameState == GameState.WAITING) {
+            trialJob?.cancel()   // 👈 cancel the delay coroutine
+            trialJob = null
             gameState = GameState.FAIL
         }
     }
