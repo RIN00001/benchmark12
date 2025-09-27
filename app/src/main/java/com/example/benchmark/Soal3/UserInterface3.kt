@@ -35,7 +35,7 @@ import kotlinx.coroutines.delay
 @Composable
 @Preview(showBackground = true, showSystemUi = true)
 fun Soal3Preview(){
- UserIn()
+    UserIn()
 }
 
 
@@ -84,16 +84,16 @@ fun UserIn(){
         "GameOver" -> {
             val context = LocalContext.current
             GameOverScreen(
-            score = game.score
-            , bestScore = game.bestScore,
-            onRestart = {
-                game.gameReset()
-                currentScreen = "Countdown"
-            },
-            onExit = {
-                (context as? Activity)?.finish()
-            }
-        )}
+                score = game.score
+                , bestScore = game.bestScore,
+                onRestart = {
+                    game.gameReset()
+                    currentScreen = "Countdown"
+                },
+                onExit = {
+                    (context as? Activity)?.finish()
+                }
+            )}
     }
 
 }
@@ -243,23 +243,22 @@ fun GameOverScreen(
         Text("Best Score", fontSize = 16.sp)
         Text("$bestScore", fontWeight = FontWeight.Bold, fontSize = 18.sp)
         Spacer(Modifier.height(32.dp))
-            Button(
-                onClick = onRestart,
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Gray),
-                shape = RoundedCornerShape(12.dp),
-                modifier = Modifier.padding(8.dp)
-            ) {
-                Text("Restart Game", color = Color.White, fontSize = 18.sp)
-            }
-            Button(
-                onClick = onExit,
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Gray),
-                shape = RoundedCornerShape(12.dp),
-                modifier = Modifier.padding(8.dp)
-            ) {
-                Text("Exit", color = Color.White, fontSize = 18.sp)
-            }
+        Button(
+            onClick = onRestart,
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Gray),
+            shape = RoundedCornerShape(12.dp),
+            modifier = Modifier.padding(8.dp)
+        ) {
+            Text("Restart Game", color = Color.White, fontSize = 18.sp)
+        }
+        Button(
+            onClick = onExit,
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Gray),
+            shape = RoundedCornerShape(12.dp),
+            modifier = Modifier.padding(8.dp)
+        ) {
+            Text("Exit", color = Color.White, fontSize = 18.sp)
+        }
 
     }
 }
-
